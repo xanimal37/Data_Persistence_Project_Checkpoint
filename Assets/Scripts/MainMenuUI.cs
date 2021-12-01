@@ -11,7 +11,7 @@ public class MainMenuUI : MonoBehaviour
     public void StartGame() {
         //store player name
         string playerName = nameInput.text;
-        Debug.Log(playerName);
+        DataManager.instance.playerName = playerName;
 
         //start game
         SceneManager.LoadScene("main");  
