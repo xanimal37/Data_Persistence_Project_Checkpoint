@@ -13,6 +13,7 @@ public class MainManager : MonoBehaviour
     public Text ScoreText;
     public Text BestScoreText; //the text that shows teh currently best score and name
     public GameObject GameOverText;
+    public GameObject MainMenuButton; // click to go back to the main menu - appears when game over
     
     private bool m_Started = false;
     private int m_Points;
@@ -31,6 +32,8 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //hide the menu return button
+        MainMenuButton.SetActive(false);
         //get the player name from the data manager - use if need to write new high score
         currentPlayerName = DataManager.instance.playerName;
         //also reset the high score each time game is restarted
@@ -50,16 +53,6 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
-    }
-
-    void UpdateHighScoreText(){
-        DataManager.instance.LoadHighScore();
-        //first, get the persistsent data from DataMAnager.instance
-        highScoreName = DataManager.instance.GetHighScoreName();
-        highScore = DataManager.instance.GetHighScore();
-        //update text in UI
-        string highScoreText = highScoreName+" : " + highScore;
-        BestScoreText.text = highScoreText;
     }
 
     private void Update()
@@ -97,18 +90,29 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         //compare scores
-       CheckForHighScore();
+       SubmitScore(m_Points);
        UpdateHighScoreText();
         GameOverText.SetActive(true);
+        MainMenuButton.SetActive(true);
     }
 
     //check for high score and save temporaily using data manager instance
     //each time scene is reloaded, it will query datamanager instance
-    void CheckForHighScore(){
-        if(m_Points > highScore){
-            DataManager.instance.SetHighScoreName(currentPlayerName);
-            DataManager.instance.SetHighScore(m_Points);
-            DataManager.instance.SaveHighScore();
-        }
+    void SubmitScore(int pts){
+        DataManager.instance.CheckScore(pts);
+    }
+
+      void UpdateHighScoreText(){
+        DataManager.instance.LoadHighScores();
+        //first, get the persistsent data from DataMAnager.instance
+        highScoreName = DataManager.instance.GetHighScoreName();
+        highScore = DataManager.instance.GetHighScore();
+        //update text in UI
+        string highScoreText = highScoreName+" : " + highScore;
+        BestScoreText.text = highScoreText;
+    }
+
+    public void GoToMainMenu(){
+        SceneManager.LoadScene(0);
     }
 }

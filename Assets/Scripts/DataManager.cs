@@ -10,7 +10,7 @@ public class DataManager : MonoBehaviour
     //data to save in session
     string highScoreName = "--";
     int highScore = 0;
-    //data to save between sessions
+    HighScores highScoresTemp;
 
     void Awake(){
         if(instance!=null){
@@ -20,9 +20,21 @@ public class DataManager : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        highScoresTemp = LoadHighScores();
+        if(highScoresTemp.playerNames==null){
+            highScoresTemp.playerNames = new List<string>();
+            highScoresTemp.playerNames.AddRange(new string[]{"--","--","--","--","--"});
+            Debug.Log(highScoresTemp.playerNames);
+        }
+        if(highScoresTemp.playerScores==null){
+            highScoresTemp.playerScores = new List<int>();
+            highScoresTemp.playerScores.AddRange(new int[]{0,0,0,0,0});
+            Debug.Log(highScoresTemp.playerScores);
+        }
     }
 
-    //getters and setters - just helps to organize 
+    //getters and setters - just accesses the variables
     public int GetHighScore(){
         return highScore;
     }
@@ -31,6 +43,15 @@ public class DataManager : MonoBehaviour
         return highScoreName;
     }
 
+    public List<string> GetHighScoreNames(){
+        return highScoresTemp.playerNames;
+    }
+
+    public List<int> GetHighScores(){
+        return highScoresTemp.playerScores;
+    }
+    
+    //sets the high score variables
     public void SetHighScore(int score){
         highScore = score;
     }
@@ -42,30 +63,55 @@ public class DataManager : MonoBehaviour
     //save data between sessions
     //Score object will be the currrent high score data
     [System.Serializable]
-    class Score {
-        public string playerName;
-        public int points;
+    public class HighScores {
+        public List<string> playerNames;
+        public List<int> playerScores;
     }
 
-    public void SaveHighScore(){
-        Score highscore = new Score();
-        highscore.playerName=highScoreName;
-        highscore.points=highScore;
+    //check to see if this score belongs in the list of high scores
+    public void CheckScore(int pts){
+        int scoreInsertIndex = 5;
+        for(int i=0;i<highScoresTemp.playerScores.Count;i++){
+            if(pts >= highScoresTemp.playerScores[i]){
+                scoreInsertIndex = i;
+                break;
+            }
+        }
+        if(scoreInsertIndex<5){
+            highScoresTemp.playerNames.Insert(scoreInsertIndex,playerName);
+            highScoresTemp.playerScores.Insert(scoreInsertIndex,pts);
+        }
 
-        string json = JsonUtility.ToJson(highscore);
+        //make sure list is no longer than 5 items
+        if(highScoresTemp.playerNames.Count>5){
+            highScoresTemp.playerNames.RemoveAt(5);
+        }
+        if(highScoresTemp.playerScores.Count>5){
+            highScoresTemp.playerScores.RemoveAt(5);
+        }
 
-        File.WriteAllText(Application.persistentDataPath + "/highscore.json", json);
+        //lastly, save the updated list
+        SaveHighScores();
     }
 
-    public void LoadHighScore(){
-        string path = Application.persistentDataPath + "/highscore.json";
+    public void SaveHighScores(){
+        
+        string json = JsonUtility.ToJson(highScoresTemp);
+
+        File.WriteAllText(Application.persistentDataPath + "/highscores.json", json);
+    }
+
+    public HighScores LoadHighScores(){
+        HighScores highScores = new HighScores();
+        string path = Application.persistentDataPath + "/highscores.json";
         if(File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            Score highscore = JsonUtility.FromJson<Score>(json);
+            highScores = JsonUtility.FromJson<HighScores>(json);
 
-            highScoreName = highscore.playerName;
-            highScore = highscore.points;
+            highScoreName = highScores.playerNames[0];
+            highScore = highScores.playerScores[0];
         }
+        return highScores;
     }
 }
