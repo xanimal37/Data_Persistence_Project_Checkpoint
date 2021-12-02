@@ -53,6 +53,7 @@ public class MainManager : MonoBehaviour
     }
 
     void UpdateHighScoreText(){
+        DataManager.instance.LoadHighScore();
         //first, get the persistsent data from DataMAnager.instance
         highScoreName = DataManager.instance.GetHighScoreName();
         highScore = DataManager.instance.GetHighScore();
@@ -107,6 +108,7 @@ public class MainManager : MonoBehaviour
         if(m_Points > highScore){
             DataManager.instance.SetHighScoreName(currentPlayerName);
             DataManager.instance.SetHighScore(m_Points);
+            DataManager.instance.SaveHighScore();
         }
     }
 }
