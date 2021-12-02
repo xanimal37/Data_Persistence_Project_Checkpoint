@@ -25,12 +25,10 @@ public class DataManager : MonoBehaviour
         if(highScoresTemp.playerNames==null){
             highScoresTemp.playerNames = new List<string>();
             highScoresTemp.playerNames.AddRange(new string[]{"--","--","--","--","--"});
-            Debug.Log(highScoresTemp.playerNames);
         }
         if(highScoresTemp.playerScores==null){
             highScoresTemp.playerScores = new List<int>();
             highScoresTemp.playerScores.AddRange(new int[]{0,0,0,0,0});
-            Debug.Log(highScoresTemp.playerScores);
         }
     }
 
@@ -50,7 +48,7 @@ public class DataManager : MonoBehaviour
     public List<int> GetHighScores(){
         return highScoresTemp.playerScores;
     }
-    
+
     //sets the high score variables
     public void SetHighScore(int score){
         highScore = score;
